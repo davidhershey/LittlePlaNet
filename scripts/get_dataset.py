@@ -18,7 +18,8 @@ cities = {
 }
 R = 6378.1 #Radius of the Earth
 
-API_KEY = "AIzaSyDjpX_RAs5nKZ6yUBuvw7HsVQqQNGgI4j0"
+IMAGE_RADIUS = 10 #radius of images around center of city
+API_KEY = "ENTER_API_KEY_HERE"
 GOOGLE_URL = ("http://maps.googleapis.com/maps/api/streetview?sensor=false&"
               "size=640x640&fov=120&key=" + API_KEY)
 
@@ -30,7 +31,7 @@ for city in cities:
         if not os.path.exists("imgs/" + str(city)):
             os.makedirs("imgs/" + str(city))
         brng = math.radians(random.uniform(0,360)) #Bearing is 90 degrees converted to radians.
-        d = float(random.uniform(0,10))
+        d = float(random.uniform(0,IMAGE_RADIUS))
         lat1 = math.radians(cities[city][0]) #Current lat point converted to radians
         lon1 = math.radians(cities[city][1]) #Current long point converted to radians
         rand_lat = math.asin( math.sin(lat1)*math.cos(d/R) +
