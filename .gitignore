@@ -59,4 +59,7 @@ docs/_build/
 *.bin
 *.out
 
+#?
+*~
+
 # data and models
