@@ -13,9 +13,9 @@ layer {
     mirror: true
   }
   data_param {
-    source: "../../outputs/small_dataset/databases/train_lmdb/"
+    source: "../../data/small_dataset/databases/train_lmdb/"
     backend: LMDB
-    batch_size: 32
+    batch_size: 8
   }
 }
 layer {
@@ -31,9 +31,9 @@ layer {
     mirror: true
   }
   data_param {
-    source: "../../outputs/small_dataset/databases/val_lmdb/"
+    source: "../../data/small_dataset/databases/val_lmdb/"
     backend: LMDB
-    batch_size: 50
+    batch_size: 8
   }
 }
 layer {

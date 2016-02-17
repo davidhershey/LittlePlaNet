@@ -8,7 +8,7 @@ import os
 import scipy.io
 
 # filename and directory constants
-DATA_DIR = '../data'
+DATA_DIR = '../data/crcv'
 CRCV_DIR = '/crcv'
 PREPROCESSED_CRCV_DIR = '/preprocessed_crcv'
 OUTPUT_DIR = '../outputs'
@@ -132,10 +132,13 @@ def load_features_and_labels(feature_set='all'):
     """
     
     # load the labels with the features so we can randomly permute the order
-    labels = load_labels()
+    labels = load_labels_as_list()
 
     # repeat the labels for each location
     labels = np.tile(labels, (NUM_HIST_ROWS_PER_LOCATION, 1)).T.reshape(-1)
+
+    # reshape to align with features before permute
+    labels = labels.reshape((-1, NUM_HIST_ROWS_PER_LOCATION))
         
     # load features
     if feature_set == 'all':
@@ -152,13 +155,16 @@ def load_features_and_labels(feature_set='all'):
     # remove all zero rows - rows with data are separated by 5 all zero
     # rows, i'm not sure why but remove them here
     feats = feats[np.any(feats != 0, axis=1)]
-
+    feats = feats.reshape((-1, NUM_HIST_ROWS_PER_LOCATION, feats.shape[-1]))
+    
     # permute features and labels
     # we want the test set to always be the same images, so set random seed before permuting
     np.random.seed(42)
     idxs = np.random.permutation(len(feats))
     feats = feats[idxs]
+    feats = feats.reshape((-1, feats.shape[-1]))
     labels = labels[idxs]
+    labels = labels.reshape((-1))
 
     # train, val, test split
     train_idx = int(len(feats) * TRAIN_RATIO)
