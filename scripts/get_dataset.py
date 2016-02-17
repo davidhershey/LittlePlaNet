@@ -21,10 +21,10 @@ R = 6378.1 #Radius of the Earth
 IMAGE_RADIUS = 10 #radius of images around center of city
 API_KEY = ""
 GOOGLE_URL = ("http://maps.googleapis.com/maps/api/streetview?sensor=false&"
-              "size=640x640&fov=120&key=" + API_KEY)
+              "size=256x256&fov=120&key=" + API_KEY)
 IMAGES_DIR = '../imgs/'
 
-    
+
 for city in cities:
     print city
     num_imgs = 0
@@ -51,7 +51,7 @@ for city in cities:
             # get_color returns the main color of image
             color = get_color.get_color(outfile)
             print color
-            if color[0] == '#e3e2dd' or color[0] == "#e3e2de":
+            if color[0] == '#e3e2dd' or color[0] == "#e3e2de" or color[0] == "#dfdeda":
                 misses+=1
                 if misses%10 is 0:
                     print "misses: ",misses
