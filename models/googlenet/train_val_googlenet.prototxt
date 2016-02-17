@@ -9,11 +9,11 @@ layer {
   }
   transform_param {
     crop_size: 224
-    
+    mean_file: "../../data/crcv/mean_image.binaryproto"    
     mirror: true
   }
   data_param {
-    source: "../../data/small_dataset/databases/train_lmdb/"
+    source: "../../data/crcv/train_lmdb/"
     backend: LMDB
     batch_size: 8
   }
@@ -28,10 +28,11 @@ layer {
   }
   transform_param {
     crop_size: 224
+    mean_file: "../../data/crcv/mean_image.binaryproto"
     mirror: true
   }
   data_param {
-    source: "../../data/small_dataset/databases/val_lmdb/"
+    source: "../../data/crcv/val_lmdb/"
     backend: LMDB
     batch_size: 8
   }

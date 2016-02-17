@@ -21,6 +21,8 @@ def run_classifier(feature_set, loss):
     classifier.fit(train, y_train)
     acc = classifier.score(val, y_val)
     print 'validation accuracy: {}'.format(acc)
+    acc = classifier.score(test, y_test)
+    print 'validation accuracy: {}'.format(acc)
     
 def parse_args():
     """

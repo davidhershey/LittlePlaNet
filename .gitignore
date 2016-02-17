@@ -62,4 +62,7 @@ docs/_build/
 #?
 *~
 
+# ignore key
+*.key
+
 # data and models

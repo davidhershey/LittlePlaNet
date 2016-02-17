@@ -5,13 +5,12 @@ import cv2
 import glob
 import numpy as np
 import os
+import random
 import scipy.io
 
 # filename and directory constants
 DATA_DIR = '../data/crcv'
-CRCV_DIR = '/crcv'
-PREPROCESSED_CRCV_DIR = '/preprocessed_crcv'
-OUTPUT_DIR = '../outputs'
+OUTPUT_DIR = '../data/crcv'
 LABLES_FILENAME = 'GPS_Long_Lat_Compass.mat'
 HIST_FILENAME = 'Color_hist.mat'
 GIST_FILENAME = 'GIST.mat'
@@ -247,20 +246,35 @@ def preprocess_crcv(dataset_dir, output_dir):
             filenames[idx] = filename
 
     # subtract mean image from images
-    imgs = subtract_mean_image(imgs)
+    #imgs = subtract_mean_image(imgs)
             
     # write the preprocessed images to dir
     write_images_to_directory(output_dir, imgs, filenames)
 
-def write_labels_file(dataset_dir, output_filepath):
+
+    
+def generate_train_split(labels):
+    # randomly determine the set of train locations
+    train_split = set()
+    for loc, label in labels.iteritems():
+        if random.random() < TRAIN_RATIO + TEST_RATIO:
+            train_split.add(loc)
+    return train_split
+    
+def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath):
     # collect the filepaths in the directory    
     filepaths, filenames = get_image_filepaths(dataset_dir)
 
     # load labels 
     labels = load_labels_as_dict()
 
+    # randomly generate the train split (and implictly the validation split)
+    # not by image but by location
+    train_split = generate_train_split(labels)
+
     # format the lines for each data entry
-    lines = []
+    train_lines = []
+    val_lines = []
     for filepath, filename in zip(filepaths, filenames):
         img_id = image_filename_to_id(filename)
         if img_id in labels:    
@@ -268,22 +282,33 @@ def write_labels_file(dataset_dir, output_filepath):
         else:
             print 'cant find label'
         string = '{} {}\n'.format(filename, label)
-        lines.append(string)
+        if img_id in train_split:
+            train_lines.append(string)
+        else:
+            val_lines.append(string)        
 
-    # write the lines to file
-    with open(output_filepath, 'wb') as f:
-        f.writelines(lines)
-                        
+    # write train lines to file
+    with open(train_output_filepath, 'wb') as f:
+        f.writelines(train_lines)
+
+    # write val lines to file
+    with open(val_output_filepath, 'wb') as f:
+        f.writelines(val_lines)
+
 if __name__ == '__main__':
-    # dataset_dir = os.path.join(DATA_DIR, 'small_dataset')
-    # output_dir = os.path.join(OUTPUT_DIR, 'small_dataset')
+    # dataset_dir = os.path.join(DATA_DIR, 'part4')
+    # output_dir = os.path.join(OUTPUT_DIR, 'part4_resized')
+    # assert os.path.isdir(dataset_dir), 'dataset directory: {} not found'.format(dataset_dir)
+    # assert os.path.isdir(output_dir), 'output directory: {} not found'.format(output_dir)    
     # preprocess_crcv(dataset_dir, output_dir)
 
-    train_dir = os.path.join(OUTPUT_DIR, 'small_dataset/train')
-    train_data_file = os.path.join(OUTPUT_DIR, 'small_dataset/train.txt')
-    write_labels_file(train_dir, train_data_file)
+    
+    train_dir = os.path.join(OUTPUT_DIR, 'resized')
+    train_data_file = os.path.join(OUTPUT_DIR, 'train.txt')
+    val_data_file = os.path.join(OUTPUT_DIR, 'val.txt')
+    assert os.path.isdir(train_dir), 'train directory: {} not found'.format(train_dir)
+    assert os.path.exists(train_data_file), 'train data file: {} not found'.format(train_data_file)  
+    assert os.path.exists(val_data_file), 'val data file: {} not found'.format(val_data_file)  
+    write_labels_file(train_dir, train_data_file, val_data_file)
 
-    val_dir = os.path.join(OUTPUT_DIR, 'small_dataset/val')
-    val_data_file = os.path.join(OUTPUT_DIR, 'small_dataset/val.txt')
-    write_labels_file(val_dir, val_data_file)
     

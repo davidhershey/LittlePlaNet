@@ -1,9 +1,14 @@
+
+import math
 import os
 import random
 import sys
 import urllib
-import math
+
+import file_utils
 import get_color
+
+
 cities = {
 "Paris" : (48.8567,2.3508),
 "London" : (51.5072,-0.1275),
@@ -19,7 +24,10 @@ cities = {
 R = 6378.1 #Radius of the Earth
 
 IMAGE_RADIUS = 10 #radius of images around center of city
-API_KEY = ""
+
+# place key in a file in the Geo-Localization directory as the only text in the file on one line
+KEY_FILEPATH = "../api_key.key"
+API_KEY = file_utils.load_key(KEY_FILEPATH)
 GOOGLE_URL = ("http://maps.googleapis.com/maps/api/streetview?sensor=false&"
               "size=256x256&fov=120&key=" + API_KEY)
 IMAGES_DIR = '../imgs/'
@@ -50,7 +58,7 @@ for city in cities:
         if os.path.isfile(outfile):
             # get_color returns the main color of image
             color = get_color.get_color(outfile)
-            print color
+            # print color
             if color[0] == '#e3e2dd' or color[0] == "#e3e2de" or color[0] == "#dfdeda":
                 misses+=1
                 if misses%10 is 0:
