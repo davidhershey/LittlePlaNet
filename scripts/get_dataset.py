@@ -3,7 +3,7 @@ import random
 import sys
 import urllib
 import math
-import getcolor
+import get_color
 cities = {
 "Paris" : (48.8567,2.3508),
 "London" : (51.5072,-0.1275),
@@ -19,17 +19,19 @@ cities = {
 R = 6378.1 #Radius of the Earth
 
 IMAGE_RADIUS = 10 #radius of images around center of city
-API_KEY = "ENTER_API_KEY_HERE"
+API_KEY = ""
 GOOGLE_URL = ("http://maps.googleapis.com/maps/api/streetview?sensor=false&"
               "size=640x640&fov=120&key=" + API_KEY)
+IMAGES_DIR = '../imgs/'
 
+    
 for city in cities:
     print city
     num_imgs = 0
     misses=0
     while num_imgs < 200:
-        if not os.path.exists("imgs/" + str(city)):
-            os.makedirs("imgs/" + str(city))
+        if not os.path.exists(IMAGES_DIR + str(city)):
+            os.makedirs(IMAGES_DIR + str(city))
         brng = math.radians(random.uniform(0,360)) #Bearing is 90 degrees converted to radians.
         d = float(random.uniform(0,IMAGE_RADIUS))
         lat1 = math.radians(cities[city][0]) #Current lat point converted to radians
@@ -42,12 +44,12 @@ for city in cities:
         rand_lat = math.degrees(rand_lat)
         rand_lon = math.degrees(rand_lon)
 
-        outfile = os.path.join("imgs/" + str(city),str(num_imgs) + ".jpg")
+        outfile = os.path.join(IMAGES_DIR + str(city),str(num_imgs) + ".jpg")
         url = GOOGLE_URL + "&location=" + str(rand_lat) + ","+ str(rand_lon)
         urllib.urlretrieve(url, outfile)
         if os.path.isfile(outfile):
             # get_color returns the main color of image
-            color = getcolor.get_color(outfile)
+            color = get_color.get_color(outfile)
             print color
             if color[0] == '#e3e2dd' or color[0] == "#e3e2de":
                 misses+=1
