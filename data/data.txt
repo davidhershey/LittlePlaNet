@@ -1,1 +1,5 @@
-place images here
+place datasets here in the following format:
+- base level directory should be the name of the dataset
+- below that should be a directory containing the images
+- at the same level should be two text files listing the train/val image names and their labels
+- at the same level should be two databases, one called train_lmdb and another called val_lmdb
