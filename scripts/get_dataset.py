@@ -21,48 +21,72 @@ cities = {
 "Detroit" : (42.3314,-83.0458),
 "DC" : (38.9047,-77.0164)
 }
-R = 6378.1 #Radius of the Earth
 
-IMAGE_RADIUS = 10 #radius of images around center of city
+# radius of the Earth
+R = 6378.1 
 
-# place key in a file in the Geo-Localization directory as the only text in the file on one line
+# radius of images around center of city
+IMAGE_RADIUS = 10 
+
+# number of images to download from each city
+NUM_IMAGES_PER_CITY = 200
+
+# size of failed-download image
+FAILED_DOWNLOAD_IMAGE_SIZE = 3554
+
+# place key in a file in the Geo-Localization directory 
+# as the only text in the file on one line
 KEY_FILEPATH = "../api_key.key"
 API_KEY = file_utils.load_key(KEY_FILEPATH)
 GOOGLE_URL = ("http://maps.googleapis.com/maps/api/streetview?sensor=false&"
               "size=256x256&fov=120&key=" + API_KEY)
 IMAGES_DIR = '../imgs/'
 
+def upload_images_to_aws(directory):
+    file_utils.upload_directory_to_aws(directory)
 
-for city in cities:
-    print city
-    num_imgs = 0
-    misses=0
-    while num_imgs < 200:
-        if not os.path.exists(IMAGES_DIR + str(city)):
-            os.makedirs(IMAGES_DIR + str(city))
-        brng = math.radians(random.uniform(0,360)) #Bearing is 90 degrees converted to radians.
-        d = float(random.uniform(0,IMAGE_RADIUS))
-        lat1 = math.radians(cities[city][0]) #Current lat point converted to radians
-        lon1 = math.radians(cities[city][1]) #Current long point converted to radians
-        rand_lat = math.asin( math.sin(lat1)*math.cos(d/R) +
-                                math.cos(lat1)*math.sin(d/R)*math.cos(brng))
+def download_images():
 
-        rand_lon = lon1 + math.atan2(math.sin(brng)*math.sin(d/R)*math.cos(lat1),
-                                    math.cos(d/R)-math.sin(lat1)*math.sin(rand_lat))
-        rand_lat = math.degrees(rand_lat)
-        rand_lon = math.degrees(rand_lon)
+    # iterate through cities dict downloading images from each city
+    for city, (lat, lon) in cities.iteritems():
+        print 'downloading images of {}'.format(city)
+        num_imgs = 0
+        misses = 0
+        cur_directory = os.path.join(IMAGES_DIR, city)
+        if not os.path.exists(cur_directory):
+            os.makedirs(cur_directory)
 
-        outfile = os.path.join(IMAGES_DIR + str(city),str(num_imgs) + ".jpg")
-        url = GOOGLE_URL + "&location=" + str(rand_lat) + ","+ str(rand_lon)
-        urllib.urlretrieve(url, outfile)
-        if os.path.isfile(outfile):
-            # get_color returns the main color of image
-            color = get_color.get_color(outfile)
-            # print color
-            if color[0] == '#e3e2dd' or color[0] == "#e3e2de" or color[0] == "#dfdeda":
-                misses+=1
-                if misses%10 is 0:
-                    print "misses: ",misses
-                os.remove(outfile)
-            else:
-                num_imgs += 1
+        while num_imgs < 2:
+            
+            # randomly select latitude and longitude in the city
+            brng = math.radians(random.uniform(0, 360)) # bearing is 90 degrees converted to radians.
+            d = random.uniform(0, IMAGE_RADIUS)
+            lat_rad = math.radians(lat) # current lat point converted to radians
+            lon_rad = math.radians(lon) # current long point converted to radians
+            rand_lat = math.asin(math.sin(lat_rad)*math.cos(d/R) +
+                            math.cos(lat_rad)*math.sin(d/R)*math.cos(brng))
+            rand_lon = lon_rad + math.atan2(math.sin(brng)*math.sin(d/R)*math.cos(lat_rad),
+                            math.cos(d/R)-math.sin(lat_rad)*math.sin(rand_lat))
+            rand_lat = math.degrees(rand_lat)
+            rand_lon = math.degrees(rand_lon)
+            
+            # download image
+            filename = 'lat-{}-lon-{}.jpg'.format(round(rand_lat, 4), round(rand_lon, 4))
+            filepath = os.path.join(cur_directory, filename)
+            url = GOOGLE_URL + "&location=" + str(rand_lat) + ","+ str(rand_lon)
+            urllib.urlretrieve(url, filepath)
+
+            # check if the downloaded image was invalid and if so remove it
+            if os.path.isfile(filepath):
+                size = os.path.getsize(filepath)
+                if size == FAILED_DOWNLOAD_IMAGE_SIZE:
+                    os.remove(filepath)
+                    misses += 1
+                else:
+                    num_imgs += 1
+
+        print 'invalid photo downloaded {} times'.format(misses)
+        upload_images_to_aws(cur_directory)
+
+if __name__ == '__main__':
+    download_images()
