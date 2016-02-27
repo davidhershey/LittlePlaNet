@@ -80,7 +80,7 @@ def download_images_for_city(city, lat, lon):
                 num_imgs += 1
 
     print 'invalid photo of {} downloaded {} times'.format(city, misses)
-    #file_utils.upload_directory_to_aws(cur_directory)
+    file_utils.upload_directory_to_aws(cur_directory)
 
 def download_images():
 
