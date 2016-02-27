@@ -15,7 +15,7 @@ layer {
   data_param {
     source: "../../data/crcv/train_lmdb/"
     backend: LMDB
-    batch_size: 8
+    batch_size: 4
   }
 }
 layer {
@@ -34,7 +34,7 @@ layer {
   data_param {
     source: "../../data/crcv/val_lmdb/"
     backend: LMDB
-    batch_size: 8
+    batch_size: 4
   }
 }
 layer {
@@ -920,10 +920,10 @@ layer {
   }
 }
 layer {
-  name: "loss1/classifier"
+  name: "my-loss1/classifier"
   type: "InnerProduct"
   bottom: "loss1/fc"
-  top: "loss1/classifier"
+  top: "my-loss1/classifier"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -933,7 +933,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 205
+    num_output: 3
     weight_filler {
       type: "xavier"
       std: 0.0009765625
@@ -945,34 +945,34 @@ layer {
   }
 }
 layer {
-  name: "loss1/loss"
+  name: "my-loss1/loss"
   type: "SoftmaxWithLoss"
-  bottom: "loss1/classifier"
+  bottom: "my-loss1/classifier"
   bottom: "label"
-  top: "loss1/loss1"
+  top: "my-loss1/loss1"
   loss_weight: 0.3
 }
 layer {
-  name: "loss1/top-1"
+  name: "my-loss1/top-1"
   type: "Accuracy"
-  bottom: "loss1/classifier"
+  bottom: "my-loss1/classifier"
   bottom: "label"
-  top: "loss1/top-1"
+  top: "my-loss1/top-1"
   include {
     phase: TEST
   }
 }
 layer {
-  name: "loss1/top-5"
+  name: "my-loss1/top-3"
   type: "Accuracy"
-  bottom: "loss1/classifier"
+  bottom: "my-loss1/classifier"
   bottom: "label"
-  top: "loss1/top-5"
+  top: "my-loss1/top-3"
   include {
     phase: TEST
   }
   accuracy_param {
-    top_k: 5
+    top_k: 3
   }
 }
 layer {
@@ -1704,10 +1704,10 @@ layer {
   }
 }
 layer {
-  name: "loss2/classifier"
+  name: "my-loss2/classifier"
   type: "InnerProduct"
   bottom: "loss2/fc"
-  top: "loss2/classifier"
+  top: "my-loss2/classifier"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -1717,7 +1717,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 205
+    num_output: 3
     weight_filler {
       type: "xavier"
       std: 0.0009765625
@@ -1729,34 +1729,34 @@ layer {
   }
 }
 layer {
-  name: "loss2/loss"
+  name: "my-loss2/loss"
   type: "SoftmaxWithLoss"
-  bottom: "loss2/classifier"
+  bottom: "my-loss2/classifier"
   bottom: "label"
-  top: "loss2/loss1"
+  top: "my-loss2/loss1"
   loss_weight: 0.3
 }
 layer {
-  name: "loss2/top-1"
+  name: "my-loss2/top-1"
   type: "Accuracy"
-  bottom: "loss2/classifier"
+  bottom: "my-loss2/classifier"
   bottom: "label"
-  top: "loss2/top-1"
+  top: "my-loss2/top-1"
   include {
     phase: TEST
   }
 }
 layer {
-  name: "loss2/top-5"
+  name: "my-loss2/top-3"
   type: "Accuracy"
-  bottom: "loss2/classifier"
+  bottom: "my-loss2/classifier"
   bottom: "label"
-  top: "loss2/top-5"
+  top: "my-loss2/top-3"
   include {
     phase: TEST
   }
   accuracy_param {
-    top_k: 5
+    top_k: 3
   }
 }
 layer {
@@ -2436,10 +2436,10 @@ layer {
   }
 }
 layer {
-  name: "loss3/classifier"
+  name: "my-loss3/classifier"
   type: "InnerProduct"
   bottom: "pool5/7x7_s1"
-  top: "loss3/classifier"
+  top: "my-loss3/classifier"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -2449,7 +2449,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 205
+    num_output: 3
     weight_filler {
       type: "xavier"
     }
@@ -2460,34 +2460,34 @@ layer {
   }
 }
 layer {
-  name: "loss3/loss3"
+  name: "my-loss3/loss3"
   type: "SoftmaxWithLoss"
-  bottom: "loss3/classifier"
+  bottom: "my-loss3/classifier"
   bottom: "label"
-  top: "loss3/loss3"
+  top: "my-loss3/loss3"
   loss_weight: 1
 }
 layer {
-  name: "loss3/top-1"
+  name: "my-loss3/top-1"
   type: "Accuracy"
-  bottom: "loss3/classifier"
+  bottom: "my-loss3/classifier"
   bottom: "label"
-  top: "loss3/top-1"
-  include {
-    phase: TEST
-  }
+  top: "my-loss3/top-1"
+#  include {
+#    phase: TEST
+#  }
 }
 layer {
-  name: "loss3/top-5"
+  name: "my-loss3/top-3"
   type: "Accuracy"
-  bottom: "loss3/classifier"
+  bottom: "my-loss3/classifier"
   bottom: "label"
-  top: "loss3/top-5"
-  include {
-    phase: TEST
-  }
+  top: "my-loss3/top-3"
+#  include {
+#    phase: TEST
+#  }
   accuracy_param {
-    top_k: 5
+    top_k: 3
   }
 }
 

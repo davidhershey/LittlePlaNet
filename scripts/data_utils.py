@@ -42,6 +42,11 @@ PITT_LAT_MAX = 42
 PITT_LONG_MIN = -81
 PITT_LONG_MAX = -79
 
+# city labels
+ORL_LABEL = 0
+NYC_LABEL = 1
+PITT_LABEL = 2
+
 def load_mat(filename):
     """
     :description: Load and return the dictionary in a matlab file
@@ -59,24 +64,23 @@ def load_labels_as_dict():
     gps = load_mat(LABLES_FILENAME)['GPS_Compass']
    
     # create mapping of <row number, label>
-    # 1 = orlando, 2 = nyc, 3 = pitt
     labels = dict()
     for idx, (latitude, longitude, angle) in enumerate(gps):
 
         # orlando
         if latitude > ORLANDO_LAT_MIN and latitude < ORLANDO_LAT_MAX \
                 and longitude > ORLANDO_LONG_MIN and longitude < ORLANDO_LONG_MAX:
-            labels[idx] = 1
+            labels[idx] = ORL_LABEL
 
         # nyc
         elif latitude > NYC_LAT_MIN and latitude < NYC_LAT_MAX \
                 and longitude > NYC_LONG_MIN and longitude < NYC_LONG_MAX:
-            labels[idx] = 2
+            labels[idx] = NYC_LABEL
 
         # pitt
         elif latitude > PITT_LAT_MIN and latitude < PITT_LAT_MAX \
                 and longitude > PITT_LONG_MIN and longitude < PITT_LONG_MAX:
-            labels[idx] = 3
+            labels[idx] = PITT_LABEL
 
         # invalid latitude or longitude
         else:
@@ -95,24 +99,23 @@ def load_labels_as_list():
     gps = load_mat(LABLES_FILENAME)['GPS_Compass']
    
     # collect the row numbers that correspond to each city
-    # 1 = orlando, 2 = nyc, 3 = pitt
     labels = []
     for idx, (latitude, longitude, angle) in enumerate(gps):
 
         # orlando
         if latitude > ORLANDO_LAT_MIN and latitude < ORLANDO_LAT_MAX \
                 and longitude > ORLANDO_LONG_MIN and longitude < ORLANDO_LONG_MAX:
-            labels.append((idx, 1))
+            labels.append((idx, ORL_LABEL))
 
         # nyc
         elif latitude > NYC_LAT_MIN and latitude < NYC_LAT_MAX \
                 and longitude > NYC_LONG_MIN and longitude < NYC_LONG_MAX:
-            labels.append((idx, 2))
+            labels.append((idx, NYC_LABEL))
 
         # pitt
         elif latitude > PITT_LAT_MIN and latitude < PITT_LAT_MAX \
                 and longitude > PITT_LONG_MIN and longitude < PITT_LONG_MAX:
-            labels.append((idx, 3))
+            labels.append((idx, PITT_LABEL))
 
         # invalid latitude or longitude
         else:
@@ -289,11 +292,11 @@ def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath):
 
     # write train lines to file
     with open(train_output_filepath, 'wb') as f:
-        f.writelines(train_lines)
+        f.writelines(np.random.permutation(train_lines))
 
     # write val lines to file
     with open(val_output_filepath, 'wb') as f:
-        f.writelines(val_lines)
+        f.writelines(np.random.permutation(val_lines))
 
 if __name__ == '__main__':
     # dataset_dir = os.path.join(DATA_DIR, 'part4')
