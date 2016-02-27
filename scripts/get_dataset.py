@@ -3,7 +3,7 @@ import math
 import os
 import random
 import sys
-import threading
+from multiprocessing.pool import ThreadPool
 import urllib
 
 import file_utils
@@ -50,7 +50,7 @@ def download_images_for_city(city, lat, lon):
     if not os.path.exists(cur_directory):
         os.makedirs(cur_directory)
 
-    while num_imgs < 2:
+    while num_imgs < 100:
         
         # randomly select latitude and longitude in the city
         brng = math.radians(random.uniform(0, 360)) # bearing is 90 degrees converted to radians.
@@ -80,23 +80,18 @@ def download_images_for_city(city, lat, lon):
                 num_imgs += 1
 
     print 'invalid photo of {} downloaded {} times'.format(city, misses)
-    file_utils.upload_directory_to_aws(cur_directory)
+    #file_utils.upload_directory_to_aws(cur_directory)
 
 def download_images():
-    if len(cities) > 32:
-        raise ValueError('this function uses simple threading \
-            and cannot handle more than 32 cities at once')
 
     # download images for each city in a different thread
-    threads = []
+    num_threads = 4
+    pool = ThreadPool(num_threads)
     for city, (lat, lon) in cities.iteritems():
-        thread = threading.Thread(target=download_images_for_city, \
-            args=(city, lat, lon))
-        thread.start()
-        threads.append(thread)
+        pool.apply_async(download_images_for_city, (city, lat, lon))
 
-    for thread in threads:
-        thread.join()
+    pool.close()
+    pool.join()
 
 if __name__ == '__main__':
     download_images()
