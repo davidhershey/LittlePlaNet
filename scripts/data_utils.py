@@ -254,17 +254,15 @@ def preprocess_crcv(dataset_dir, output_dir):
     # write the preprocessed images to dir
     write_images_to_directory(output_dir, imgs, filenames)
 
-
-    
 def generate_train_split(labels):
     # randomly determine the set of train locations
     train_split = set()
     for loc, label in labels.iteritems():
-        if random.random() < TRAIN_RATIO + TEST_RATIO:
+        if random.random() < TRAIN_RATIO:
             train_split.add(loc)
     return train_split
     
-def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath):
+def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath, test_output_filepath):
     # collect the filepaths in the directory    
     filepaths, filenames = get_image_filepaths(dataset_dir)
 
@@ -280,6 +278,8 @@ def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath):
     val_lines = []
     for filepath, filename in zip(filepaths, filenames):
         img_id = image_filename_to_id(filename)
+        if filename[-5] == '5':
+            continue
         if img_id in labels:    
             label = labels[img_id]
         else:
@@ -293,25 +293,34 @@ def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath):
     # write train lines to file
     with open(train_output_filepath, 'wb') as f:
         f.writelines(np.random.permutation(train_lines))
+        
+    # split val into test and val using mid point
+    mid = len(val_lines) / 2
 
     # write val lines to file
     with open(val_output_filepath, 'wb') as f:
-        f.writelines(np.random.permutation(val_lines))
+        f.writelines(np.random.permutation(val_lines[:mid]))
+
+    # write test lines to file
+    with open(test_output_filepath, 'wb') as f:
+        f.writelines(np.random.permutation(val_lines[mid:]))
 
 if __name__ == '__main__':
-    # dataset_dir = os.path.join(DATA_DIR, 'part4')
-    # output_dir = os.path.join(OUTPUT_DIR, 'part4_resized')
+    # dataset_dir = os.path.join(DATA_DIR, 'part9')
+    # output_dir = os.path.join(OUTPUT_DIR, 'part9_resized')
     # assert os.path.isdir(dataset_dir), 'dataset directory: {} not found'.format(dataset_dir)
-    # assert os.path.isdir(output_dir), 'output directory: {} not found'.format(output_dir)    
+    # if not os.path.isdir(output_dir):
+    #     os.mkdir(output_dir)
     # preprocess_crcv(dataset_dir, output_dir)
 
-    
     train_dir = os.path.join(OUTPUT_DIR, 'resized')
     train_data_file = os.path.join(OUTPUT_DIR, 'train.txt')
     val_data_file = os.path.join(OUTPUT_DIR, 'val.txt')
+    test_data_file = os.path.join(OUTPUT_DIR, 'test.txt')
     assert os.path.isdir(train_dir), 'train directory: {} not found'.format(train_dir)
     assert os.path.exists(train_data_file), 'train data file: {} not found'.format(train_data_file)  
     assert os.path.exists(val_data_file), 'val data file: {} not found'.format(val_data_file)  
-    write_labels_file(train_dir, train_data_file, val_data_file)
+    assert os.path.exists(test_data_file), 'test data file: {} not found'.format(test_data_file)  
+    write_labels_file(train_dir, train_data_file, val_data_file, test_data_file)
 
     
