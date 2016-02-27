@@ -7,8 +7,6 @@ import threading
 import urllib
 
 import file_utils
-import get_color
-
 
 cities = {
 "Paris" : (48.8567,2.3508),

@@ -66,3 +66,7 @@ docs/_build/
 *.key
 
 # data and models
+*.jpg
+*.png
+*.caffemodel
+*.solverstate
