@@ -18,7 +18,6 @@ def load_key(filepath):
     else:
         raise ValueError('invalid key: {}'.format(key))
 
-
 def upload_directory_to_aws(directory):
     ak = load_key('../access_key.key')
     sk = load_key('../secret_key.key')

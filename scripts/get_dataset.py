@@ -3,6 +3,7 @@ import math
 import os
 import random
 import sys
+import threading
 import urllib
 
 import file_utils
@@ -42,10 +43,11 @@ GOOGLE_URL = ("http://maps.googleapis.com/maps/api/streetview?sensor=false&"
               "size=256x256&fov=120&key=" + API_KEY)
 IMAGES_DIR = '../imgs/'
 
-def upload_images_to_aws(directory):
-    file_utils.upload_directory_to_aws(directory)
-
 def download_images():
+
+    # uploading to aws can be slow so use separate thread for that task
+    # collect thread identifiers so we can join on them before exiting
+    threads = []
 
     # iterate through cities dict downloading images from each city
     for city, (lat, lon) in cities.iteritems():
@@ -56,7 +58,7 @@ def download_images():
         if not os.path.exists(cur_directory):
             os.makedirs(cur_directory)
 
-        while num_imgs < 2:
+        while num_imgs < 500:
             
             # randomly select latitude and longitude in the city
             brng = math.radians(random.uniform(0, 360)) # bearing is 90 degrees converted to radians.
@@ -86,7 +88,12 @@ def download_images():
                     num_imgs += 1
 
         print 'invalid photo downloaded {} times'.format(misses)
-        upload_images_to_aws(cur_directory)
+        thread = threading.Thread(target=file_utils.upload_directory_to_aws, args=(cur_directory, ))
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
 
 if __name__ == '__main__':
     download_images()
