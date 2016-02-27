@@ -4,18 +4,25 @@ import cv2
 import numpy as np
 import os
 import random
+import shutil
 import urllib
 
 import data_utils
 
+LABELS_URL = 'http://www.cs.ucf.edu/~aroshan/index_files/Dataset_PitOrlManh/GPS_Long_Lat_Compass.mat'
 URL = 'http://www.cs.ucf.edu/~aroshan/index_files/Dataset_PitOrlManh/images/{}_{}.jpg'
-DATASET_DIR = '../data/images'
+DATASET_DIR = 'images'
 MIN_ID = 1
 MAX_ID = 10000
-PERSPECTIVES = [1,2,3,4]
+PERSPECTIVES = [0,1,2,3,4,5]
 
 def get_images(num_images, dataset_dir):
     """ save num_images random images to dataset_dir """
+    # first download labels
+    request_url = LABELS_URL
+    outfile = os.path.join(DATASET_DIR, data_utils.LABLES_FILENAME)
+    
+    # then download images
     for idx in range(num_images):
         img_id = str(random.randint(MIN_ID, MAX_ID)).zfill(6)
         perspective = str(random.choice(PERSPECTIVES))
@@ -83,5 +90,8 @@ def get_human_baseline(dataset_dir):
 if __name__ == '__main__':
     num_images = 200
     dataset_dir = DATASET_DIR
-    #get_images(num_images, dataset_dir)
+    if not os.path.isdir(dataset_dir):
+        os.mkdir(dataset_dir)
+    get_images(num_images, dataset_dir)
     get_human_baseline(dataset_dir)
+    shutil.rmtree(dataset_dir)
