@@ -40,10 +40,10 @@ def get_city_name_from_city_directory(city_directory):
     city_name = city_directory.split('/')[-2]
     return city_name
     
-def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath, test_output_filepath):
+def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath, test_output_filepath, city_labels_filepath):
 
     # load the city directories e.g., '../data/cities/Barcelona/'
-    city_directories = get_city_directories(dataset_dir)
+    city_directories = sorted(get_city_directories(dataset_dir))
     
     # populate a dictionary with the label of each image
     image_labels = dict()
@@ -79,6 +79,11 @@ def write_labels_file(dataset_dir, train_output_filepath, val_output_filepath, t
         else:
             val_lines.append(string)        
 
+    # write city labels to file
+    with open(city_labels_filepath, 'wb') as f:
+        for city, cidx in city_labels.iteritems():
+            f.write('{} {}\n'.format(city, cidx))
+            
     # write train lines to file
     with open(train_output_filepath, 'wb') as f:
         f.writelines(np.random.permutation(train_lines))
@@ -99,6 +104,7 @@ if __name__ == '__main__':
     train_data_file = os.path.join(OUTPUT_DIR, 'train.txt')
     val_data_file = os.path.join(OUTPUT_DIR, 'val.txt')
     test_data_file = os.path.join(OUTPUT_DIR, 'test.txt')
+    city_labels_file = os.path.join(OUTPUT_DIR, 'city_labels.txt')
     assert os.path.isdir(train_dir), 'train directory: {} not found'.format(train_dir)
     if os.path.exists(train_data_file):
         open(train_data_file, 'a').close()
@@ -106,6 +112,9 @@ if __name__ == '__main__':
         open(val_data_file, 'a').close()
     if os.path.exists(test_data_file):
         open(test_data_file, 'a').close()
-    write_labels_file(train_dir, train_data_file, val_data_file, test_data_file)
+    if os.path.exists(city_labels_file):
+        open(city_labels_file, 'a').close()
+
+    write_labels_file(train_dir, train_data_file, val_data_file, test_data_file, city_labels_file)
 
     
