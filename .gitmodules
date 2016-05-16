@@ -1,0 +1,3 @@
+[submodule "LittlePlaNet-Models"]
+	path = LittlePlaNet-Models
+	url = https://github.com/wulfebw/LittlePlaNet-Models.git
